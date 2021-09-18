@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: ups
+    db: postgres
+spec:
+  selector:
+    matchLabels:
+      app: ups
+      db: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ups
+        db: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:10
+          env:
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: admin
+            - name: POSTGRES_DATABASE
+              value: app
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels:
+    app: ups
+    db: postgres
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: ups
+    db: postgres
